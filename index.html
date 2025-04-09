@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дизайн карты</title>
+    <style>
+        body {
+            background-color: #121212; /* Темно-серый фон */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #ccc; /* Светло-серый текст */
+            font-family: Arial, sans-serif;
+            text-align: center; /* Центрирование текста */
+        }
+        .oval {
+            background-color: rgb(48, 48, 48);
+            border-radius: 190px; /* Увеличен радиус для более округлой формы */
+            padding: 3px 15px; /* Увеличены отступы */
+            margin-bottom: 30px;
+        }
+        .arrow {
+           color: rgba(147, 153, 162);
+            font-size: 40px; /* Увеличен размер стрелки */
+            margin-bottom: 10px;
+        }
+        .card {
+            background-color: black;
+            width: 220px; /* Немного увеличена ширина карты */
+            height: 320px; /* Немного увеличена высота карты */
+            border-radius: 15px; /* Увеличен радиус для более мягких углов */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Центрирование содержимого карты */
+            justify-content: space-between; /* Пространство между элементами */
+            padding: 20px;
+            transition: transform 0.3s ease; /* Анимация при трансляции */
+        }
+        .card.animate {
+            transform: translateY(-3%); /* Анимация вверх */
+        }
+        .ncard {
+            font-size: 24px; /* Увеличен размер текста ncard */
+        }
+        .text {
+            color: rgba(145, 153, 159);
+            margin-bottom: 7px;  
+        }
+        .checkmark {
+            display: none; /* Скрываем галочку по умолчанию */
+            position: absolute;
+            top: 30px; /* Позиция галочки над овалом */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: green;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .checkmark::after {
+            content: '✔';
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="oval">
+        <div>open</div>
+    </div>
+    
+    <div class="arrow">↑</div>
+    <h2 class="text">Поднесите телефон к терминалу</h2>
+    
+    <div class="card" id="nfcCard">
+        <div class="ncard">ncard</div>
+    </div>
+    
+    <div class="checkmark" id="checkmark"></div>
+
+    <script>
+        if ('NFC' in window) {
+            const nfc = new NFC();
+
+            nfc.addEventListener('reading', event => {
+                const { message } = event;
+                const records = message.records;
+
+                // Здесь вы можете обработать полученные данные
+                console.log(records);
+
+                // Показ галочки
+                const checkmark = document.getElementById('checkmark');
+                checkmark.style.display = 'flex'; // Показываем галочку
+                const card = document.getElementById('nfcCard');
+                card.classList.add('animate'); // Добавляем класс анимации
+
+                // Вибрация на 0.4 секунды
+                if (navigator.vibrate) {
+                    navigator.vibrate(400);
+                }
+            });
+
+            async function emulateNFC() {
+                try {
+                    const ndefMessage = {
+                        records: [
+                            {
+                                recordType: 'text',
+                                data: '45:5C:8A:5D:FF:07:80:69', // Ваш код
+                            }
+                        ]
+                    };
+
+                    await nfc.write(ndefMessage);
+                    console.log('NFC эмуляция успешна!');
+                } catch (error) {
+                    console.error('Ошибка при эмуляции NFC:', error);
+                }
+            }
+
+            emulateNFC();
+        } else {
+            console.log('Web NFC API не поддерживается этим браузером.');
+        }
+    </script>
+</body>
+</html>
